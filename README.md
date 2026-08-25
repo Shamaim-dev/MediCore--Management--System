@@ -90,7 +90,7 @@ Key highlights of MediCore include a fully responsive layout that works on mobil
 ## 🚀 How to Run Locally
 
 Step 1 — Clone the repository
-git clone https://github.com/yourusername/medicore.git
+https://github.com/Shamaim-dev/MediCore--Management--System.git
 
 Step 2 — Open the project folder in VS Code
 
