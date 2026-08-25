@@ -1,0 +1,2068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MediCore — Hospital Management System</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital@0;1&display=swap" rel="stylesheet"/>
+
+  <style>
+    /* VARIABLES */
+:root {
+  --bg:        #F8FAFC;
+  --white:     #FFFFFF;
+  --navy:      #0F172A;
+  --navy-lt:   #1E293B;
+  --teal:      #0D9488;
+  --teal-lt:   #14B8A6;
+  --red:       #EF4444;
+  --yellow:    #F59E0B;
+  --muted:     #64748B;
+  --border:    #E2E8F0;
+  --shadow:    0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.10);
+  --sidebar-w: 260px;
+}
+
+/* RESET */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--navy);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+/* LAYOUT */
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.main-content {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  padding: 2rem;
+  transition: margin 0.3s;
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+}
+/* SIDEBAR */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--navy);
+  height: 100vh;
+  position: fixed;
+  top: 0; left: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 1rem;
+  z-index: 200;
+  transition: transform 0.3s ease;
+  overflow-y: auto;
+}
+
+/* LOGO */
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #ffffff;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.logo-icon {
+  width: 34px;
+  height: 34px;
+  background: var(--teal);
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: white;
+}
+
+.sidebar-logo em {
+  color: var(--teal);
+  font-style: italic;
+}
+
+/* NAV LINKS */
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.nav-section-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 1rem 0.75rem 0.5rem;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  text-decoration: none;
+  color: #94A3B8;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.nav-item:hover {
+  background: rgba(255,255,255,0.06);
+  color: #ffffff;
+}
+
+.nav-item.active {
+  background: var(--teal);
+  color: #ffffff;
+}
+
+.nav-icon {
+  font-size: 1rem;
+  width: 20px;
+  text-align: center;
+}
+
+/* SIDEBAR FOOTER */
+.sidebar-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  margin-top: 1rem;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--teal);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  color: white;
+  font-size: 0.9rem;
+}
+
+.user-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.user-role {
+  font-size: 0.75rem;
+  color: #64748B;
+}
+
+/* OVERLAY (mobile) */
+.form-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  place-items: center;
+  z-index: 999;
+}
+
+.form-overlay.active {
+  display: grid;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .main-content {
+    margin-left: 0;
+  }
+}
+/* TOPBAR */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  gap: 1rem;
+}
+
+.menu-btn {
+  display: none;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: var(--navy);
+}
+
+.topbar-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--navy);
+}
+
+.topbar-right {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+/* BUTTONS */
+.btn {
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: var(--teal);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: var(--teal-lt);
+}
+
+/* SECTIONS */
+.section {
+  display: none;
+}
+
+.section.active {
+  display: block;
+}
+
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+  color: var(--navy);
+}
+
+.section-title em {
+  color: var(--teal);
+  font-style: italic;
+}
+
+.section-desc {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-bottom: 2rem;
+}
+
+/* STATS GRID */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+}
+
+.stat-label {
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.5rem;
+}
+
+.stat-num {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--navy);
+  letter-spacing: -0.03em;
+  margin-bottom: 0.4rem;
+}
+
+.stat-change {
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.green { color: #10B981; }
+.yellow { color: var(--yellow); }
+.red { color: var(--red); }
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .menu-btn {
+    display: block;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .main-content {
+    padding: 1.25rem;
+  }
+}
+/* CARD */
+.card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  margin-bottom: 1.5rem;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--navy);
+}
+
+/* TABLE */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table th {
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.data-table td {
+  padding: 0.9rem 1rem;
+  font-size: 0.88rem;
+  color: var(--navy);
+  border-bottom: 1px solid var(--border);
+}
+
+.data-table tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table tr:hover td {
+  background: var(--bg);
+}
+
+/* BADGES */
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge.green {
+  background: #D1FAE5;
+  color: #065F46;
+}
+
+.badge.yellow {
+  background: #FEF3C7;
+  color: #92400E;
+}
+
+.badge.red {
+  background: #FEE2E2;
+  color: #991B1B;
+}
+/* SEARCH BAR */
+.search-bar {
+  margin-bottom: 1.5rem;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 0.85rem 1.25rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--white);
+  color: var(--navy);
+  font-size: 0.9rem;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  outline: none;
+  transition: border 0.2s;
+}
+
+.search-bar input:focus {
+  border-color: var(--teal);
+}
+
+/* DOCTORS GRID */
+.doctors-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+.doctor-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: var(--shadow);
+  transition: box-shadow 0.2s;
+}
+
+.doctor-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.doctor-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal), #0EA5E9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: white;
+  margin: 0 auto 1rem;
+}
+
+.doctor-card h3 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 0.3rem;
+}
+
+.specialization {
+  color: var(--teal);
+  font-size: 0.82rem;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.experience {
+  color: var(--muted);
+  font-size: 0.78rem;
+  margin-bottom: 0.75rem;
+}
+
+.book-btn {
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0.65rem;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .doctors-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+/* SECTION ACTIONS */
+.section-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.section-actions .search-bar {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+/* DELETE BUTTON */
+.btn-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.btn-icon.red {
+  color: var(--red);
+}
+
+.btn-icon.red:hover {
+  background: #FEE2E2;
+}
+
+/* ADD PATIENT FORM */
+.form-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  margin-top: 1.5rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin: 1.25rem 0;
+}
+
+.form-grid input,
+.form-grid select {
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-size: 0.88rem;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: var(--navy);
+  outline: none;
+  transition: border 0.2s;
+}
+
+.form-grid input:focus,
+.form-grid select:focus {
+  border-color: var(--teal);
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+.btn-ghost:hover {
+  background: var(--bg);
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .form-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .section-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+/* DEPARTMENTS */
+.dept-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.dept-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+  box-shadow: var(--shadow);
+}
+
+.dept-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.dept-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+}
+
+.dept-card h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 0.3rem;
+}
+
+.dept-card p {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-bottom: 0.75rem;
+}
+
+.dept-detail {
+  margin-top: 1rem;
+}
+
+.dept-detail-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  color: var(--navy);
+  margin: 1rem 0 0.3rem;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .dept-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+/* SETTINGS */
+.setting-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.setting-item:last-child {
+  border-bottom: none;
+}
+
+.setting-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 0.2rem;
+}
+
+.setting-desc {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+/* TOGGLE SWITCH */
+.toggle {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: var(--border);
+  border-radius: 999px;
+  transition: 0.3s;
+}
+
+.toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  left: 3px;
+  top: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: 0.3s;
+}
+
+.toggle input:checked + .toggle-slider {
+  background: var(--teal);
+}
+
+.toggle input:checked + .toggle-slider::before {
+  transform: translateX(20px);
+}
+/* POPUP */
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  place-items: center;
+  z-index: 999;
+}
+
+.popup-overlay.active {
+  display: grid;
+}
+
+.popup {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 400px;
+  position: relative;
+  box-shadow: var(--shadow-md);
+}
+
+.popup-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  color: var(--navy);
+  margin-bottom: 0.3rem;
+}
+
+.popup-doctor {
+  color: var(--teal);
+  font-size: 0.88rem;
+  font-weight: 500;
+  margin-bottom: 1.25rem;
+}
+
+.popup-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  color: var(--muted);
+}
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+
+  <!-- LOGO -->
+  <div class="sidebar-logo">
+    <div class="logo-icon">+</div>
+    <span>Medi<em>Core</em></span>
+  </div>
+
+  <!-- NAVIGATION -->
+  <nav class="sidebar-nav">
+
+    <p class="nav-section-label">Main Menu</p>
+
+    <a href="#" class="nav-item active" onclick="showSection('dashboard')">
+      <span class="nav-icon">▣</span>
+      Dashboard
+    </a>
+
+    <a href="#" class="nav-item" onclick="showSection('patients')">
+      <span class="nav-icon">♥</span>
+      Patients
+    </a>
+
+    <a href="#" class="nav-item" onclick="showSection('doctors')">
+      <span class="nav-icon">✚</span>
+      Doctors
+    </a>
+
+    <a href="#" class="nav-item" onclick="showSection('appointments')">
+      <span class="nav-icon">◷</span>
+      Appointments
+    </a>
+
+    <a href="#" class="nav-item" onclick="showSection('departments')">
+      <span class="nav-icon">⊞</span>
+      Departments
+    </a>
+
+    <a href="#" class="nav-item" onclick="showSection('medicine')">
+      <span class="nav-icon">☤</span>
+      Medicine
+    </a>
+
+    <a href="#" class="nav-item" onclick="showSection('billing')">
+      <span class="nav-icon">$</span>
+      Billing
+    </a>
+
+    <p class="nav-section-label">System</p>
+
+    <a href="#" class="nav-item" onclick="showSection('settings')">
+      <span class="nav-icon">⚙</span>
+      Settings
+    </a>
+
+  </nav>
+
+  <!-- SIDEBAR FOOTER -->
+  <div class="sidebar-footer">
+    <div class="user-avatar">S</div>
+    <div class="user-info">
+      <p class="user-name">Shamaim</p>
+      <p class="user-role">Admin</p>
+    </div>
+  </div>
+
+</aside>
+<!-- BOOK APPOINTMENT POPUP -->
+<div class="popup-overlay" id="popupOverlay">
+  <div class="popup">
+    <button class="popup-close" onclick="closePopup()"></button>
+    <h3 class="popup-title">Book Appointment</h3>
+    <p class="popup-doctor" id="popupDoctorName"></p>
+    <div class="form-grid" style="grid-template-columns:1fr;">
+      <input type="text" id="popupPatient" placeholder="Your Full Name" />
+      <input type="date" id="popupDate" />
+      <input type="time" id="popupTime" />
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-primary" onclick="confirmBooking()">Confirm</button>
+      <button class="btn btn-ghost" onclick="closePopup()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+  <!-- OVERLAY (mobile dark background) -->
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+  <!-- MAIN CONTENT -->
+<div class="layout">
+  <div class="main-content">
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+      <div class="topbar-title" id="pageTitle">Dashboard</div>
+      <div class="topbar-left"></div>
+      </div>
+    </div>
+
+    <!-- SECTIONS (only one shows at a time) -->
+
+    <!-- DASHBOARD SECTION -->
+    <div class="section active" id="dashboard">
+      <h2 class="section-title">Welcome back, <em>Shamaim</em> </h2>
+      <p class="section-desc">Here is what is happening today.</p>
+      <!-- RECENT PATIENTS TABLE -->
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">Recent Patients</h3>
+    <button class="btn btn-primary">View All</button>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Patient ID</th>
+        <th>Name</th>
+        <th>Age</th>
+        <th>Doctor</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>#P001</td>
+        <td>Ahmed Raza</td>
+        <td>34</td>
+        <td>Dr. Ahmed Khan</td>
+        <td><span class="badge green">Active</span></td>
+      </tr>
+      <tr>
+        <td>#P002</td>
+        <td>Sara Malik</td>
+        <td>28</td>
+        <td>Dr. Sara Ali</td>
+        <td><span class="badge green">Active</span></td>
+      </tr>
+      <tr>
+        <td>#P003</td>
+        <td>Usman Ali</td>
+        <td>45</td>
+        <td>Dr. Usman Malik</td>
+        <td><span class="badge yellow">Pending</span></td>
+      </tr>
+      <tr>
+        <td>#P004</td>
+        <td>Fatima Noor</td>
+        <td>31</td>
+        <td>Dr. Fatima Zahra</td>
+        <td><span class="badge red">Critical</span></td>
+      </tr>
+      <tr>
+        <td>#P005</td>
+        <td>Bilal Hassan</td>
+        <td>52</td>
+        <td>Dr. Bilal Hassan</td>
+        <td><span class="badge green">Active</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+      <!-- STATS CARDS -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <p class="stat-label">Total Patients</p>
+          <p class="stat-num">1,240</p>
+          <p class="stat-change green">+12 today</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-label">Doctors</p>
+          <p class="stat-num">86</p>
+          <p class="stat-change green">+2 this week</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-label">Appointments</p>
+          <p class="stat-num">320</p>
+          <p class="stat-change yellow">48 pending</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-label">Departments</p>
+          <p class="stat-num">12</p>
+          <p class="stat-change green">All active</p>
+        </div>
+      </div>
+    </div>
+
+<!-- PATIENTS SECTION -->
+<div class="section" id="patients">
+  <h2 class="section-title">Patient <em>List</em></h2>
+  <p class="section-desc">Manage all registered patients.</p>
+
+  <div class="section-actions">
+    <div class="search-bar">
+      <input type="text" id="patientSearch" placeholder="Search patients..." />
+    </div>
+    <button class="btn btn-primary" onclick="showAddPatient()">+ Add Patient</button>
+  </div>
+
+  <div class="card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Age</th>
+          <th>Gender</th>
+          <th>Doctor</th>
+          <th>Disease</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="patienttbody">
+        <tr>
+          <td>#P001</td>
+          <td>Ahmed Raza</td>
+          <td>34</td>
+          <td>Male</td>
+          <td>Dr. Ahmed Khan</td>
+          <td>Cardiac</td>
+          <td><span class="badge green">Active</span></td>
+          <td><button class="btn-icon red" onclick="deleteRow(this)"></button></td>
+        </tr>
+        <tr>
+          <td>#P002</td>
+          <td>Sara Malik</td>
+          <td>28</td>
+          <td>Female</td>
+          <td>Dr. Sara Ali</td>
+          <td>Neurology</td>
+          <td><span class="badge green">Active</span></td>
+          <td><button class="btn-icon red" onclick="deleteRow(this)"></button></td>
+        </tr>
+        <tr>
+          <td>#P003</td>
+          <td>Usman Ali</td>
+          <td>45</td>
+          <td>Male</td>
+          <td>Dr. Usman Malik</td>
+          <td>Orthopedic</td>
+          <td><span class="badge yellow">Pending</span></td>
+          <td><button class="btn-icon red" onclick="deleteRow(this)"></button></td>
+        </tr>
+        <tr>
+          <td>#P004</td>
+          <td>Fatima Noor</td>
+          <td>31</td>
+          <td>Female</td>
+          <td>Dr. Fatima Zahra</td>
+          <td>Pediatrics</td>
+          <td><span class="badge red">Critical</span></td>
+          <td><button class="btn-icon red" onclick="deleteRow(this)"></button></td>
+        </tr>
+        <tr>
+          <td>#P005</td>
+          <td>Bilal Hassan</td>
+          <td>52</td>
+          <td>Male</td>
+          <td>Dr. Bilal Hassan</td>
+          <td>Dermatology</td>
+          <td><span class="badge green">Active</span></td>
+          <td><button class="btn-icon red" onclick="deleteRow(this)"></button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ADD PATIENT FORM POPUP -->
+  <div class="form-overlay" id="addPatientForm">
+    <div class="form-popup">
+      <button class="form-popup-close" onclick="hideAddPatient()"></button>
+      <h3>Add New Patient</h3>
+      <div class="form-grid">
+        <input type="text" id="newName" placeholder="Full Name" />
+        <input type="number" id="newAge" placeholder="Age" />
+        <select id="newGender">
+          <option value="">Gender</option>
+          <option>Male</option>
+          <option>Female</option>
+        </select>
+        <input type="text" id="newDisease" placeholder="Disease" />
+        <input type="text" id="newDoctor" placeholder="Assigned Doctor" />
+        <select id="newStatus">
+          <option value="">Status</option>
+          <option>Active</option>
+          <option>Pending</option>
+          <option>Critical</option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="addPatient()">Save Patient</button>
+        <button class="btn btn-ghost" onclick="hideAddPatient()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+    <!-- DOCTORS SECTION -->
+<div class="section" id="doctors">
+  <h2 class="section-title">Doctor <em>Directory</em></h2>
+  <p class="section-desc">View and manage all doctors.</p>
+
+  <div class="section-actions">
+    <div class="search-bar">
+      <input type="text" id="doctorSearch" placeholder="Search by name or specialization..." />
+    </div>
+    <button class="btn btn-primary" onclick="showDoctorForm()">+ Add Doctor</button>
+  </div>
+
+  <!-- DOCTORS GRID -->
+  <div class="doctors-grid" id="doctorsGrid">
+
+    <div class="doctor-card">
+      <div class="doctor-avatar">AK</div>
+      <h3>Dr. Ahmed Khan</h3>
+      <p class="specialization">Cardiologist</p>
+      <p class="experience">12 years experience</p>
+      <span class="badge green">Available</span>
+      <button class="btn btn-primary book-btn" onclick="openPopup('Dr. Ahmed Khan')">Book Appointment</button>
+    </div>
+
+    <div class="doctor-card">
+      <div class="doctor-avatar">SA</div>
+      <h3>Dr. Sara Ali</h3>
+      <p class="specialization">Neurologist</p>
+      <p class="experience">8 years experience</p>
+      <span class="badge green">Available</span>
+      <button class="btn btn-primary book-btn" onclick="openPopup('Dr. Sara Ali')">Book Appointment</button>
+    </div>
+
+    <div class="doctor-card">
+      <div class="doctor-avatar">UM</div>
+      <h3>Dr. Usman Malik</h3>
+      <p class="specialization">Orthopedic</p>
+      <p class="experience">15 years experience</p>
+      <span class="badge yellow">Busy</span>
+      <button class="btn btn-primary book-btn" onclick="openPopup('Dr. Usman Malik')">Book Appointment</button>
+    </div>
+
+    <div class="doctor-card">
+      <div class="doctor-avatar">FZ</div>
+      <h3>Dr. Fatima Zahra</h3>
+      <p class="specialization">Pediatrician</p>
+      <p class="experience">10 years experience</p>
+      <span class="badge green">Available</span>
+      <button class="btn btn-primary book-btn" onclick="openPopup('Dr. Fatima Zahra')">Book Appointment</button>
+    </div>
+
+    <div class="doctor-card">
+      <div class="doctor-avatar">BH</div>
+      <h3>Dr. Bilal Hassan</h3>
+      <p class="specialization">Dermatologist</p>
+      <p class="experience">6 years experience</p>
+      <span class="badge green">Available</span>
+      <button class="btn btn-primary book-btn" onclick="openPopup('Dr. Bilal Hassan')">Book Appointment</button>
+    </div>
+
+    <div class="doctor-card">
+      <div class="doctor-avatar">AR</div>
+      <h3>Dr. Ayesha Raza</h3>
+      <p class="specialization">Gynecologist</p>
+      <p class="experience">11 years experience</p>
+      <span class="badge red">Busy</span>
+      <button class="btn btn-primary book-btn" onclick="openPopup('Dr. Ayesha Raza')">Book Appointment</button>
+    </div>
+
+  </div>
+
+  <!-- ADD DOCTOR FORM POPUP -->
+  <div class="form-overlay" id="doctorForm">
+    <div class="form-popup">
+      <button class="form-popup-close" onclick="hideDoctorForm()"></button>
+      <h3>Add New Doctor</h3>
+      <div class="form-grid">
+        <input type="text" id="docName" placeholder="Full Name" />
+        <input type="text" id="docSpec" placeholder="Specialization" />
+        <input type="text" id="docExp" placeholder="Experience (e.g. 5 years)" />
+        <select id="docStatus">
+          <option value="">Status</option>
+          <option>Available</option>
+          <option>Busy</option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="addDoctor()">Save</button>
+        <button class="btn btn-ghost" onclick="hideDoctorForm()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- APPOINTMENTS SECTION -->
+<div class="section" id="appointments">
+  <h2 class="section-title"><em>Appointments</em></h2>
+  <p class="section-desc">Book and manage patient appointments.</p>
+
+  <div class="section-actions">
+    <div class="search-bar">
+      <input type="text" id="apptSearch" placeholder="Search appointments..." />
+    </div>
+    <button class="btn btn-primary" onclick="showApptForm()">+ New Appointment</button>
+  </div>
+
+  <!-- APPOINTMENTS TABLE -->
+  <div class="card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Patient</th>
+          <th>Doctor</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="apptTbody">
+        <tr>
+          <td>#A001</td>
+          <td>Ahmed Raza</td>
+          <td>Dr. Ahmed Khan</td>
+          <td>2026-07-01</td>
+          <td>09:00 AM</td>
+          <td><span class="badge green">Confirmed</span></td>
+          <td><button class="btn-icon red" onclick="deleteRow(this)"></button></td>
+        </tr>
+        <tr>
+          <td>#A002</td>
+          <td>Sara Malik</td>
+          <td>Dr. Sara Ali</td>
+          <td>2026-07-01</td>
+          <td>10:30 AM</td>
+          <td><span class="badge yellow">Pending</span></td>
+          <td><button class="btn-icon red" onclick="deleteRow(this)"></button></td>
+        </tr>
+        <tr>
+          <td>#A003</td>
+          <td>Usman Ali</td>
+          <td>Dr. Usman Malik</td>
+          <td>2026-07-02</td>
+          <td>11:00 AM</td>
+          <td><span class="badge green">Confirmed</span></td>
+          <td><button class="btn-icon red" onclick="deleteRow(this)"></button></td>
+        </tr>
+        <tr>
+          <td>#A004</td>
+          <td>Fatima Noor</td>
+          <td>Dr. Fatima Zahra</td>
+          <td>2026-07-02</td>
+          <td>02:00 PM</td>
+          <td><span class="badge red">Cancelled</span></td>
+          <td><button class="btn-icon red" onclick="deleteRow(this)"></button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ADD APPOINTMENT FORM POPUP -->
+  <div class="form-overlay" id="apptForm">
+    <div class="form-popup">
+      <button class="form-popup-close" onclick="hideApptForm()"></button>
+      <h3>New Appointment</h3>
+      <div class="form-grid">
+        <input type="text" id="apptPatient" placeholder="Patient Name" />
+        <input type="text" id="apptDoctor" placeholder="Doctor Name" />
+        <input type="date" id="apptDate" />
+        <input type="time" id="apptTime" />
+        <select id="apptStatus">
+          <option value="">Status</option>
+          <option>Confirmed</option>
+          <option>Pending</option>
+          <option>Cancelled</option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="addAppointment()">Save</button>
+        <button class="btn btn-ghost" onclick="hideApptForm()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+ <!-- DEPARTMENTS SECTION -->
+<div class="section" id="departments">
+  <h2 class="section-title">Hospital <em>Departments</em></h2>
+  <p class="section-desc">Click any department to view its details.</p>
+
+  <div class="section-actions" style="margin-bottom:1.5rem;">
+    <div></div>
+    <button class="btn btn-primary" onclick="showDeptForm()">+ Add Department</button>
+  </div>
+
+  <!-- DEPARTMENTS GRID -->
+  <div class="dept-grid" id="deptGrid">
+
+    <div class="dept-card" onclick="showDept('cardiology')">
+      <div class="dept-icon" style="background:#DBEAFE; color:#1D4ED8;">♥</div>
+      <h3>Cardiology</h3>
+      <p>Heart & cardiovascular care</p>
+      <span class="badge green">12 Doctors</span>
+    </div>
+
+    <div class="dept-card" onclick="showDept('neurology')">
+      <div class="dept-icon" style="background:#EDE9FE; color:#6D28D9;">🧠</div>
+      <h3>Neurology</h3>
+      <p>Brain & nervous system</p>
+      <span class="badge green">8 Doctors</span>
+    </div>
+
+    <div class="dept-card" onclick="showDept('pediatrics')">
+      <div class="dept-icon" style="background:#D1FAE5; color:#065F46;">✚</div>
+      <h3>Pediatrics</h3>
+      <p>Children healthcare</p>
+      <span class="badge green">10 Doctors</span>
+    </div>
+
+    <div class="dept-card" onclick="showDept('orthopedic')">
+      <div class="dept-icon" style="background:#FEF3C7; color:#92400E;">⊕</div>
+      <h3>Orthopedic</h3>
+      <p>Bones & joints care</p>
+      <span class="badge green">7 Doctors</span>
+    </div>
+
+    <div class="dept-card" onclick="showDept('dermatology')">
+      <div class="dept-icon" style="background:#FCE7F3; color:#9D174D;">❋</div>
+      <h3>Dermatology</h3>
+      <p>Skin & hair treatment</p>
+      <span class="badge green">6 Doctors</span>
+    </div>
+
+    <div class="dept-card" onclick="showDept('gynecology')">
+      <div class="dept-icon" style="background:#FEE2E2; color:#991B1B;">♀</div>
+      <h3>Gynecology</h3>
+      <p>Women healthcare</p>
+      <span class="badge green">9 Doctors</span>
+    </div>
+
+  </div>
+
+  <!-- DEPARTMENT DETAIL -->
+  <div class="dept-detail" id="deptDetail" style="display:none;">
+    <button class="btn btn-ghost" onclick="hideDept()">← Back</button>
+    <h3 class="dept-detail-title" id="deptName"></h3>
+    <p class="section-desc" id="deptDesc"></p>
+    <div class="card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Doctor</th>
+            <th>Specialization</th>
+            <th>Experience</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="deptDoctors"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ADD DEPARTMENT FORM POPUP -->
+  <div class="form-overlay" id="deptForm">
+    <div class="form-popup">
+      <button class="form-popup-close" onclick="hideDeptForm()"></button>
+      <h3>Add New Department</h3>
+      <div class="form-grid">
+        <input type="text" id="deptNameInput" placeholder="Department Name" />
+        <input type="text" id="deptDescInput" placeholder="Description" />
+        <input type="text" id="deptDoctorsInput" placeholder="Number of Doctors" />
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="addDepartment()">Save</button>
+        <button class="btn btn-ghost" onclick="hideDeptForm()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MEDICINE SECTION -->
+<div class="section" id="medicine">
+  <h2 class="section-title">Medicine <em>Inventory</em></h2>
+  <p class="section-desc">Track medicine stock and expiry dates.</p>
+
+  <div class="section-actions">
+    <div class="search-bar">
+      <input type="text" id="medSearch" placeholder="Search medicines..." />
+    </div>
+    <button class="btn btn-primary" onclick="showMedForm()">+ Add Medicine</button>
+  </div>
+
+  <!-- MEDICINE TABLE -->
+  <div class="card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Medicine</th>
+          <th>Category</th>
+          <th>Stock</th>
+          <th>Expiry</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="medTbody">
+        <tr>
+          <td>#M001</td>
+          <td>Paracetamol</td>
+          <td>Painkiller</td>
+          <td>500</td>
+          <td>2027-06-01</td>
+          <td><span class="badge green">In Stock</span></td>
+          <td><button class="btn-icon red" onclick="deleteRow(this)"></button></td>
+        </tr>
+        <tr>
+          <td>#M002</td>
+          <td>Amoxicillin</td>
+          <td>Antibiotic</td>
+          <td>120</td>
+          <td>2026-12-01</td>
+          <td><span class="badge green">In Stock</span></td>
+          <td><button class="btn-icon red" onclick="deleteRow(this)"></button></td>
+        </tr>
+        <tr>
+          <td>#M003</td>
+          <td>Metformin</td>
+          <td>Diabetes</td>
+          <td>8</td>
+          <td>2026-09-01</td>
+          <td><span class="badge yellow">Low Stock</span></td>
+          <td><button class="btn-icon red" onclick="deleteRow(this)"></button></td>
+        </tr>
+        <tr>
+          <td>#M004</td>
+          <td>Aspirin</td>
+          <td>Painkiller</td>
+          <td>0</td>
+          <td>2026-08-01</td>
+          <td><span class="badge red">Out of Stock</span></td>
+          <td><button class="btn-icon red" onclick="deleteRow(this)"></button></td>
+        </tr>
+        <tr>
+          <td>#M005</td>
+          <td>Omeprazole</td>
+          <td>Antacid</td>
+          <td>340</td>
+          <td>2027-03-01</td>
+          <td><span class="badge green">In Stock</span></td>
+          <td><button class="btn-icon red" onclick="deleteRow(this)"></button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ADD MEDICINE FORM POPUP -->
+  <div class="form-overlay" id="medForm">
+    <div class="form-popup">
+      <button class="form-popup-close" onclick="hideMedForm()"></button>
+      <h3>Add New Medicine</h3>
+      <div class="form-grid">
+        <input type="text" id="medName" placeholder="Medicine Name" />
+        <input type="text" id="medCategory" placeholder="Category" />
+        <input type="number" id="medStock" placeholder="Stock Quantity" />
+        <input type="date" id="medExpiry" />
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="addMedicine()">Save</button>
+        <button class="btn btn-ghost" onclick="hideMedForm()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- BILLING SECTION -->
+<div class="section" id="billing">
+  <h2 class="section-title">Billing & <em>Invoices</em></h2>
+  <p class="section-desc">Manage patient payments and invoices.</p>
+
+  <div class="section-actions">
+    <div class="search-bar">
+      <input type="text" id="billSearch" placeholder="Search invoices..." />
+    </div>
+    <button class="btn btn-primary" onclick="showBillForm()">+ New Invoice</button>
+  </div>
+
+  <!-- BILLING TABLE -->
+  <div class="card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Invoice ID</th>
+          <th>Patient</th>
+          <th>Doctor</th>
+          <th>Amount</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="billTbody">
+        <tr>
+          <td>#INV001</td>
+          <td>Ahmed Raza</td>
+          <td>Dr. Ahmed Khan</td>
+          <td>Rs. 2,500</td>
+          <td>2026-07-01</td>
+          <td><span class="badge green">Paid</span></td>
+          <td><button class="btn-icon red" onclick="deleteRow(this)"></button></td>
+        </tr>
+        <tr>
+          <td>#INV002</td>
+          <td>Sara Malik</td>
+          <td>Dr. Sara Ali</td>
+          <td>Rs. 1,800</td>
+          <td>2026-07-01</td>
+          <td><span class="badge yellow">Pending</span></td>
+          <td><button class="btn-icon red" onclick="deleteRow(this)">x</button></td>
+        </tr>
+        <tr>
+          <td>#INV003</td>
+          <td>Usman Ali</td>
+          <td>Dr. Usman Malik</td>
+          <td>Rs. 3,200</td>
+          <td>2026-07-02</td>
+          <td><span class="badge green">Paid</span></td>
+          <td><button class="btn-icon red" onclick="deleteRow(this)">x</button></td>
+        </tr>
+        <tr>
+          <td>#INV004</td>
+          <td>Fatima Noor</td>
+          <td>Dr. Fatima Zahra</td>
+          <td>Rs. 4,500</td>
+          <td>2026-07-02</td>
+          <td><span class="badge red">Unpaid</span></td>
+          <td><button class="btn-icon red" onclick="deleteRow(this)">x</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ADD BILLING FORM POPUP -->
+  <div class="form-overlay" id="billForm">
+    <div class="form-popup">
+      <button class="form-popup-close" onclick="hideBillForm()">x</button>
+      <h3>New Invoice</h3>
+      <div class="form-grid">
+        <input type="text" id="billPatient" placeholder="Patient Name" />
+        <input type="text" id="billDoctor" placeholder="Doctor Name" />
+        <input type="number" id="billAmount" placeholder="Amount (Rs.)" />
+        <input type="date" id="billDate" />
+        <select id="billStatus">
+          <option value="">Status</option>
+          <option>Paid</option>
+          <option>Pending</option>
+          <option>Unpaid</option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="addInvoice()">Save</button>
+        <button class="btn btn-ghost" onclick="hideBillForm()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+    <!-- SETTINGS SECTION -->
+<div class="section" id="settings">
+  <h2 class="section-title">System <em>Settings</em></h2>
+  <p class="section-desc">Configure your hospital system preferences.</p>
+
+  <!-- PROFILE SETTINGS -->
+  <div class="card" style="margin-bottom:1.5rem;">
+    <h3 class="card-title" style="margin-bottom:1.25rem;">Profile Settings</h3>
+    <div class="form-grid">
+      <input type="text" placeholder="Hospital Name" value="MediCore Hospital" />
+      <input type="text" placeholder="Admin Name" value="Shamaim" />
+      <input type="email" placeholder="Email" value="shamaim@medicore.com" />
+      <input type="text" placeholder="Phone" value="+92 300 0000000" />
+      <input type="text" placeholder="City" value="Rawalpindi" />
+      <input type="text" placeholder="Country" value="Pakistan" />
+    </div>
+    <button class="btn btn-primary" onclick="saveSettings()">Save Changes</button>
+  </div>
+
+  <!-- SYSTEM SETTINGS -->
+  <div class="card">
+    <h3 class="card-title" style="margin-bottom:1.25rem;">System Preferences</h3>
+
+    <div class="setting-item">
+      <div>
+        <p class="setting-label">Email Notifications</p>
+        <p class="setting-desc">Receive alerts for new appointments</p>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" checked />
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <div class="setting-item">
+      <div>
+        <p class="setting-label">SMS Alerts</p>
+        <p class="setting-desc">Send SMS reminders to patients</p>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" />
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <div class="setting-item">
+      <div>
+        <p class="setting-label">Dark Mode</p>
+        <p class="setting-desc">Switch to dark theme</p>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" />
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <div class="setting-item">
+      <div>
+        <p class="setting-label">Auto Backup</p>
+        <p class="setting-desc">Backup data every 24 hours</p>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" checked />
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+  </div>
+
+</div>
+
+  
+
+  <script>
+    // ── SHOW SECTION ──
+function showSection(name) {
+  document.querySelectorAll('.section').forEach(function(sec) {
+    sec.classList.remove('active');
+  });
+  document.getElementById(name).classList.add('active');
+
+  const titles = {
+    dashboard:    'Dashboard',
+    patients:     'Patients',
+    doctors:      'Doctors',
+    appointments: 'Appointments',
+    departments:  'Departments',
+    medicine:     'Medicine',
+    billing:      'Billing',
+    settings:     'Settings'
+  };
+  document.getElementById('pageTitle').textContent = titles[name];
+
+  document.querySelectorAll('.nav-item').forEach(function(item) {
+    item.classList.remove('active');
+  });
+  event.currentTarget.classList.add('active');
+
+  if (window.innerWidth <= 768) {
+    closeSidebar();
+  }
+}
+
+// ── SIDEBAR ──
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  sidebar.classList.toggle('open');
+  overlay.classList.toggle('active');
+}
+
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('active');
+}
+
+// ── PATIENTS ──
+let patientCount = 5;
+
+function showAddPatient() {
+  document.getElementById('addPatientForm').classList.add('active');
+}
+function hideAddPatient() {
+  document.getElementById('addPatientForm').classList.remove('active');
+}
+
+function addPatient() {
+  const name    = document.getElementById('newName').value;
+  const age     = document.getElementById('newAge').value;
+  const gender  = document.getElementById('newGender').value;
+  const disease = document.getElementById('newDisease').value;
+  const doctor  = document.getElementById('newDoctor').value;
+  const status  = document.getElementById('newStatus').value;
+
+  if (!name || !age || !gender || !disease || !doctor || !status) {
+    alert('Please fill all fields!');
+    return;
+  }
+
+  patientCount++;
+  const id = '#P00' + patientCount;
+  const badgeClass = status === 'Active' ? 'green' : status === 'Pending' ? 'yellow' : 'red';
+
+  const row = `<tr>
+    <td>${id}</td>
+    <td>${name}</td>
+    <td>${age}</td>
+    <td>${gender}</td>
+    <td>${doctor}</td>
+    <td>${disease}</td>
+    <td><span class="badge ${badgeClass}">${status}</span></td>
+    <td><button class="btn-icon red" onclick="deleteRow(this)">✕</button></td>
+  </tr>`;
+
+  document.getElementById('patienttbody').insertAdjacentHTML('beforeend', row);
+  hideAddPatient();
+}
+
+// ── DELETE ROW ──
+function deleteRow(btn) {
+  if (confirm('Are you sure you want to delete this record?')) {
+    btn.closest('tr').remove();
+  }
+}
+
+// ── APPOINTMENTS ──
+let apptCount = 4;
+
+function showApptForm() {
+  document.getElementById('apptForm').classList.add('active');
+}
+function hideApptForm() {
+  document.getElementById('apptForm').classList.remove('active');
+}
+
+function addAppointment() {
+  const patient = document.getElementById('apptPatient').value;
+  const doctor  = document.getElementById('apptDoctor').value;
+  const date    = document.getElementById('apptDate').value;
+  const time    = document.getElementById('apptTime').value;
+  const status  = document.getElementById('apptStatus').value;
+
+  if (!patient || !doctor || !date || !time || !status) {
+    alert('Please fill all fields!');
+    return;
+  }
+
+  apptCount++;
+  const id = '#A00' + apptCount;
+  const badgeClass = status === 'Confirmed' ? 'green' : status === 'Pending' ? 'yellow' : 'red';
+
+  const row = `<tr>
+    <td>${id}</td>
+    <td>${patient}</td>
+    <td>${doctor}</td>
+    <td>${date}</td>
+    <td>${time}</td>
+    <td><span class="badge ${badgeClass}">${status}</span></td>
+    <td><button class="btn-icon red" onclick="deleteRow(this)">✕</button></td>
+  </tr>`;
+
+  document.getElementById('apptTbody').insertAdjacentHTML('beforeend', row);
+  hideApptForm();
+}
+
+// ── DEPARTMENTS ──
+const deptData = {
+  cardiology: {
+    name: 'Cardiology Department',
+    desc: 'Heart and cardiovascular care unit',
+    doctors: [
+      ['Dr. Ahmed Khan', 'Cardiologist', '12 years', 'Available'],
+      ['Dr. Tariq Mehmood', 'Cardiac Surgeon', '18 years', 'Available'],
+    ]
+  },
+  neurology: {
+    name: 'Neurology Department',
+    desc: 'Brain and nervous system specialists',
+    doctors: [
+      ['Dr. Sara Ali', 'Neurologist', '8 years', 'Available'],
+      ['Dr. Kamran Shah', 'Neurosurgeon', '14 years', 'Busy'],
+    ]
+  },
+  pediatrics: {
+    name: 'Pediatrics Department',
+    desc: 'Specialized healthcare for children',
+    doctors: [
+      ['Dr. Fatima Zahra', 'Pediatrician', '10 years', 'Available'],
+      ['Dr. Hina Baig', 'Child Specialist', '7 years', 'Available'],
+    ]
+  },
+  orthopedic: {
+    name: 'Orthopedic Department',
+    desc: 'Bones, joints and muscle care',
+    doctors: [
+      ['Dr. Usman Malik', 'Orthopedic', '15 years', 'Busy'],
+      ['Dr. Asad Javed', 'Bone Specialist', '11 years', 'Available'],
+    ]
+  },
+  dermatology: {
+    name: 'Dermatology Department',
+    desc: 'Skin, hair and nail treatment',
+    doctors: [
+      ['Dr. Bilal Hassan', 'Dermatologist', '6 years', 'Available'],
+      ['Dr. Nadia Khan', 'Skin Specialist', '9 years', 'Available'],
+    ]
+  },
+  gynecology: {
+    name: 'Gynecology Department',
+    desc: 'Women health and maternity care',
+    doctors: [
+      ['Dr. Ayesha Raza', 'Gynecologist', '11 years', 'Busy'],
+      ['Dr. Sana Mir', 'Obstetrician', '8 years', 'Available'],
+    ]
+  }
+};
+
+function showDept(name) {
+  const dept = deptData[name];
+  document.getElementById('deptName').textContent = dept.name;
+  document.getElementById('deptDesc').textContent = dept.desc;
+
+  const tbody = document.getElementById('deptDoctors');
+  tbody.innerHTML = '';
+
+  dept.doctors.forEach(function(doc) {
+    const badgeClass = doc[3] === 'Available' ? 'green' : 'yellow';
+    tbody.innerHTML += `<tr>
+      <td>${doc[0]}</td>
+      <td>${doc[1]}</td>
+      <td>${doc[2]}</td>
+      <td><span class="badge ${badgeClass}">${doc[3]}</span></td>
+    </tr>`;
+  });
+
+  document.getElementById('deptGrid').style.display = 'none';
+  document.getElementById('deptDetail').style.display = 'block';
+}
+
+function hideDept() {
+  document.getElementById('deptGrid').style.display = 'grid';
+  document.getElementById('deptDetail').style.display = 'none';
+}
+
+function showDeptForm() {
+  document.getElementById('deptForm').classList.add('active');
+}
+function hideDeptForm() {
+  document.getElementById('deptForm').classList.remove('active');
+}
+
+function addDepartment() {
+  const name    = document.getElementById('deptNameInput').value;
+  const desc    = document.getElementById('deptDescInput').value;
+  const doctors = document.getElementById('deptDoctorsInput').value;
+
+  if (!name || !desc || !doctors) {
+    alert('Please fill all fields!');
+    return;
+  }
+
+  const card = `
+  <div class="dept-card">
+    <div class="dept-icon" style="background:#DBEAFE; color:#1D4ED8;">+</div>
+    <h3>${name}</h3>
+    <p>${desc}</p>
+    <span class="badge green">${doctors} Doctors</span>
+  </div>`;
+
+  document.getElementById('deptGrid').insertAdjacentHTML('beforeend', card);
+  hideDeptForm();
+}
+
+// ── MEDICINE ──
+let medCount = 5;
+
+function showMedForm() {
+  document.getElementById('medForm').classList.add('active');
+}
+function hideMedForm() {
+  document.getElementById('medForm').classList.remove('active');
+}
+
+function addMedicine() {
+  const name     = document.getElementById('medName').value;
+  const category = document.getElementById('medCategory').value;
+  const stock    = document.getElementById('medStock').value;
+  const expiry   = document.getElementById('medExpiry').value;
+
+  if (!name || !category || !stock || !expiry) {
+    alert('Please fill all fields!');
+    return;
+  }
+
+  medCount++;
+  const id = '#M00' + medCount;
+  const stockNum = parseInt(stock);
+  const badgeClass = stockNum === 0 ? 'red' : stockNum < 10 ? 'yellow' : 'green';
+  const statusText = stockNum === 0 ? 'Out of Stock' : stockNum < 10 ? 'Low Stock' : 'In Stock';
+
+  const row = `<tr>
+    <td>${id}</td>
+    <td>${name}</td>
+    <td>${category}</td>
+    <td>${stock}</td>
+    <td>${expiry}</td>
+    <td><span class="badge ${badgeClass}">${statusText}</span></td>
+    <td><button class="btn-icon red" onclick="deleteRow(this)">✕</button></td>
+  </tr>`;
+
+  document.getElementById('medTbody').insertAdjacentHTML('beforeend', row);
+  hideMedForm();
+}
+
+// ── BILLING ──
+let billCount = 4;
+
+function showBillForm() {
+  document.getElementById('billForm').classList.add('active');
+}
+function hideBillForm() {
+  document.getElementById('billForm').classList.remove('active');
+}
+
+function addInvoice() {
+  const patient = document.getElementById('billPatient').value;
+  const doctor  = document.getElementById('billDoctor').value;
+  const amount  = document.getElementById('billAmount').value;
+  const date    = document.getElementById('billDate').value;
+  const status  = document.getElementById('billStatus').value;
+
+  if (!patient || !doctor || !amount || !date || !status) {
+    alert('Please fill all fields!');
+    return;
+  }
+
+  billCount++;
+  const id = '#INV00' + billCount;
+  const badgeClass = status === 'Paid' ? 'green' : status === 'Pending' ? 'yellow' : 'red';
+
+  const row = `<tr>
+    <td>${id}</td>
+    <td>${patient}</td>
+    <td>${doctor}</td>
+    <td>Rs. ${parseInt(amount).toLocaleString()}</td>
+    <td>${date}</td>
+    <td><span class="badge ${badgeClass}">${status}</span></td>
+    <td><button class="btn-icon red" onclick="deleteRow(this)">✕</button></td>
+  </tr>`;
+
+  document.getElementById('billTbody').insertAdjacentHTML('beforeend', row);
+  hideBillForm();
+}
+
+// ── SETTINGS ──
+function saveSettings() {
+  alert('Settings saved successfully!');
+}
+
+// ── DOCTORS ──
+function showDoctorForm() {
+  document.getElementById('doctorForm').classList.add('active');
+}
+function hideDoctorForm() {
+  document.getElementById('doctorForm').classList.remove('active');
+}
+
+function addDoctor() {
+  const name   = document.getElementById('docName').value;
+  const spec   = document.getElementById('docSpec').value;
+  const exp    = document.getElementById('docExp').value;
+  const status = document.getElementById('docStatus').value;
+
+  if (!name || !spec || !exp || !status) {
+    alert('Please fill all fields!');
+    return;
+  }
+
+  const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+  const badgeClass = status === 'Available' ? 'green' : 'yellow';
+
+  const card = `
+  <div class="doctor-card">
+    <div class="doctor-avatar">${initials}</div>
+    <h3>${name}</h3>
+    <p class="specialization">${spec}</p>
+    <p class="experience">${exp}</p>
+    <span class="badge ${badgeClass}">${status}</span>
+    <button class="btn btn-primary book-btn" onclick="openPopup('${name}')">Book Appointment</button>
+  </div>`;
+
+  document.getElementById('doctorsGrid').insertAdjacentHTML('beforeend', card);
+  hideDoctorForm();
+}
+
+// ── BOOK APPOINTMENT POPUP ──
+function openPopup(doctorName) {
+  document.getElementById('popupDoctorName').textContent = doctorName;
+  document.getElementById('popupOverlay').classList.add('active');
+}
+
+function closePopup() {
+  document.getElementById('popupOverlay').classList.remove('active');
+}
+
+function confirmBooking() {
+  const patient = document.getElementById('popupPatient').value;
+  const date    = document.getElementById('popupDate').value;
+  const time    = document.getElementById('popupTime').value;
+
+  if (!patient || !date || !time) {
+    alert('Please fill all fields!');
+    return;
+  }
+
+  alert('Appointment confirmed for ' + patient + ' on ' + date + ' at ' + time);
+  closePopup();
+}
+
+// ── SEARCH ──
+document.getElementById('patientSearch').addEventListener('input', function() {
+  const query = this.value.toLowerCase();
+  document.querySelectorAll('#patienttbody tr').forEach(function(row) {
+    row.style.display = row.textContent.toLowerCase().includes(query) ? '' : 'none';
+  });
+});
+
+document.getElementById('apptSearch').addEventListener('input', function() {
+  const query = this.value.toLowerCase();
+  document.querySelectorAll('#apptTbody tr').forEach(function(row) {
+    row.style.display = row.textContent.toLowerCase().includes(query) ? '' : 'none';
+  });
+});
+
+document.getElementById('medSearch').addEventListener('input', function() {
+  const query = this.value.toLowerCase();
+  document.querySelectorAll('#medTbody tr').forEach(function(row) {
+    row.style.display = row.textContent.toLowerCase().includes(query) ? '' : 'none';
+  });
+});
+
+document.getElementById('billSearch').addEventListener('input', function() {
+  const query = this.value.toLowerCase();
+  document.querySelectorAll('#billTbody tr').forEach(function(row) {
+    row.style.display = row.textContent.toLowerCase().includes(query) ? '' : 'none';
+  });
+});
+
+document.getElementById('doctorSearch').addEventListener('input', function() {
+  const query = this.value.toLowerCase();
+  document.querySelectorAll('.doctor-card').forEach(function(card) {
+    const name = card.querySelector('h3').textContent.toLowerCase();
+    const spec = card.querySelector('.specialization').textContent.toLowerCase();
+    card.style.display = (name.includes(query) || spec.includes(query)) ? 'block' : 'none';
+  });
+});
+</script>
+
+</body>
+</html>
