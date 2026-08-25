@@ -2,7 +2,7 @@
 
 > A fully functional Single Page Application (SPA) built for managing complete hospital operations from one unified interface — no page reloads, no multiple files.
 
-Live Demo: https://yourusername.github.io/medicore
+Live Demo:  https://shamaim-dev.github.io/MediCore--Management--System/
 
 ---
 
