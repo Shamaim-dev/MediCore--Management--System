@@ -202,8 +202,13 @@ body {
 
 /* MOBILE */
 @media (max-width: 768px) {
+  .menu-btn {
+    display: block;
+  }
+
   .sidebar {
     transform: translateX(-100%);
+    z-index: 200;
   }
 
   .sidebar.open {
@@ -211,7 +216,38 @@ body {
   }
 
   .main-content {
-    margin-left: 0;
+    margin-left: 0 !important;
+    width: 100% !important;
+    padding: 1rem !important;
+  }
+
+  .layout {
+    width: 100%;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .doctors-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dept-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .data-table {
+    font-size: 0.78rem;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 0.6rem 0.5rem;
   }
 }
 /* TOPBAR */
